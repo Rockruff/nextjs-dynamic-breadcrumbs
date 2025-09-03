@@ -1,11 +1,53 @@
 import fs from "fs";
 import path from "path";
 import process from "process";
+import url from "url";
 
 import chokidar from "chokidar";
 
-import * as Utils from "./utils";
-
+class Utils {
+  static walkFiles(dir, callback) {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const name = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        this.walkFiles(name, callback);
+      } else if (entry.isFile()) {
+        callback(name);
+      }
+    }
+  }
+  static readFile(name) {
+    return fs.readFileSync(name, { encoding: "utf-8" });
+  }
+  static writeFile(name, content) {
+    const parent = path.dirname(name);
+    if (!fs.existsSync(parent)) fs.mkdirSync(parent, { recursive: true });
+    if (Array.isArray(content)) content = content.join("\n");
+    fs.writeFileSync(name, content);
+  }
+  static removeFile(name, root) {
+    fs.rmSync(name, { force: true });
+    let current = path.dirname(name);
+    while (current.startsWith(root)) {
+      try {
+        fs.rmdirSync(current);
+        current = path.dirname(current);
+      } catch {
+        break; // not empty or not allowed
+      }
+    }
+  }
+  static packageRoot() {
+    const __filename = url.fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    return path.resolve(__dirname, "..");
+  }
+  static readTemplate(name) {
+    const root = this.packageRoot();
+    const templateFile = path.join(root, "templates", name);
+    return this.readFile(templateFile);
+  }
+}
 // TODO: extract these as configuration
 const ParallelRouteName = "breadcrumbs";
 const BreadCrumbFileName = "breadcrumb";

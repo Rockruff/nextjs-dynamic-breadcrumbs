@@ -38,9 +38,14 @@ export function removeFile(name: string, root: string) {
   }
 }
 
+function packageRoot() {
+  const __filename = url.fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  return path.resolve(__dirname, "..");
+}
+
 export function readTemplate(name: string) {
-  const scriptFile = url.fileURLToPath(import.meta.url);
-  const scriptDir = path.dirname(scriptFile);
-  const templateFile = path.resolve(scriptDir, "templates", name);
+  const root = packageRoot();
+  const templateFile = path.join(root, "templates", name);
   return readFile(templateFile);
 }

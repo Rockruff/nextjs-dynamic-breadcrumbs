@@ -1,7 +1,52 @@
 {
-  "name": "nextjs-breadcrumbs",
+  "name": "nextjs-dynamic-breadcrumbs",
   "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/hook.js",
+      "require": "./dist/hook.js",
+      "types": "./dist/hook.d.ts"
+    },
+    "./generator": {
+      "import": "./dist/generator.js",
+      "require": "./dist/generator.js",
+      "types": "./dist/generator.d.ts"
+    }
+  },
   "dependencies": {
     "chokidar": "^4.0.3"
+  },
+  "peerDependencies": {
+    "next": "^15.5.2",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/node": "^24.3.0",
+    "@typescript-eslint/parser": "^8.42.0",
+    "eslint": "^9.34.0",
+    "eslint-plugin-unused-imports": "^4.2.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.6",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{css,scss,sass,less,html}": [
+      "prettier --write"
+    ],
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,mdx,yml,yaml}": [
+      "prettier --write"
+    ]
   }
 }

@@ -17,15 +17,15 @@ const LayoutFileName = "layout";
 const DefaultFileName = "default";
 
 export default class BreadcrumbGenerator {
-  baseDir: string;
-  outDir: string;
+  private baseDir: string;
+  private outDir: string;
 
   constructor(baseDir: string) {
     this.baseDir = path.resolve(baseDir);
     this.outDir = path.join(this.baseDir, `@${ParallelRouteName}`);
   }
 
-  handlePage(srcFile: string, event: "add" | "unlink") {
+  private handlePage(srcFile: string, event: "add" | "unlink") {
     const srcFileRel = path.relative(this.baseDir, srcFile);
     const targetFile = path.join(this.outDir, srcFileRel);
     if (event === "unlink") {
@@ -36,7 +36,7 @@ export default class BreadcrumbGenerator {
     Utils.writeFile(targetFile, content);
   }
 
-  handleBreadCrumb(srcFile: string, event: "add" | "unlink") {
+  private handleBreadCrumb(srcFile: string, event: "add" | "unlink") {
     const srcDir = path.dirname(srcFile);
     const srcDirRel = path.relative(this.baseDir, srcDir);
     const targetDir = path.join(this.outDir, srcDirRel);
@@ -50,7 +50,7 @@ export default class BreadcrumbGenerator {
     Utils.writeFile(targetFile, content);
   }
 
-  handleFile(file: string, event: "add" | "unlink") {
+  private handleFile(file: string, event: "add" | "unlink") {
     if (file.startsWith(this.outDir)) return;
     const name = path.basename(file);
     if (name === PageFileName + FileExtension) this.handlePage(file, event);

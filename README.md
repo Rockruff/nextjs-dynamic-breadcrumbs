@@ -35,15 +35,32 @@ npm install next react react-dom
 Assume you want breadcrumbs for all pages under `/dashboard`. In `next.config.ts`:
 
 ```ts
+import type { NextConfig } from "next";
+import { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD } from "next/constants";
 import BreadcrumbGenerator from "nextjs-dynamic-breadcrumbs/generator";
 
-const generator = new BreadcrumbGenerator("app/dashboard");
-
-if (process.env.NODE_ENV === "development") {
-  generator.clean(); // Remove previously generated files
+function generateBreadCrumbs(phase: string, path: string) {
+  // Run only in dev or build phases
+  if (phase === PHASE_DEVELOPMENT_SERVER || phase === PHASE_PRODUCTION_BUILD) {
+    // Prevent duplicate execution when Next.js reloads config multiple times
+    if (process.env.__BREADCRUMBS_GENERATED__) return;
+    const generator = new BreadcrumbGenerator(path);
+    // Remove previously generated breadcrumb files to ensure a clean state
+    generator.clean();
+    // Generate new breadcrumb files (and watch for changes)
+    generator.start();
+    // Mark as executed so this runs only once per process
+    process.env.__BREADCRUMBS_GENERATED__ = "true";
+  }
 }
 
-generator.start(); // Generate breadcrumb files
+export default (phase: string): NextConfig => {
+  generateBreadCrumbs(phase, "app/dashboard");
+
+  return {
+    /* config options here */
+  };
+};
 ```
 
 > ⚠️ **Warning:** This package uses [parallel routes](https://nextjs.org/docs/app/api-reference/file-conventions/parallel-routes). Do **not** have a parallel route at `app/dashboard/@breadcrumbs`. The generator will overwrite this folder. Backup your code if unsure.
